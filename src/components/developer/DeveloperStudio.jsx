@@ -28,7 +28,8 @@ import {
   Search,
   Mail,
   Calendar,
-  Activity
+  Activity,
+  KeyRound
 } from 'lucide-react';
 import { useStudyApp } from '../../context/StudyAppContext';
 import { useChat } from '../../context/ChatContext';
@@ -52,6 +53,8 @@ export function DeveloperStudio() {
     deleteUser,
     addUser,
     updateUser,
+    devPin,
+    setDevPin,
     userProfile,
     setUserProfile,
     exportData,
@@ -63,13 +66,17 @@ export function DeveloperStudio() {
 
   const { messages, setMessages, sendMessage } = useChat();
 
-  const [activeTab, setActiveTab] = useState('users'); // 'users' | 'subjects' | 'resources' | 'flashcards' | 'tasks' | 'chat' | 'rawjson'
+  const [activeTab, setActiveTab] = useState('users'); // 'users' | 'subjects' | 'resources' | 'flashcards' | 'tasks' | 'chat' | 'rawjson' | 'security'
   const [editingSubject, setEditingSubject] = useState(null);
   const [editingResource, setEditingResource] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState('all');
+
+  // PIN change state
+  const [newMasterPin, setNewMasterPin] = useState('');
+  const [confirmMasterPin, setConfirmMasterPin] = useState('');
 
   // Add user form state
   const [newUserName, setNewUserName] = useState('');
@@ -131,7 +138,21 @@ export function DeveloperStudio() {
     showNotice('User details updated!');
   };
 
-  // 2. SUBJECT OPERATIONS
+  // 2. PIN CHANGE
+  const handleChangePin = (e) => {
+    e.preventDefault();
+    if (!newMasterPin.trim()) return;
+    if (newMasterPin !== confirmMasterPin) {
+      alert('PIN confirmation does not match.');
+      return;
+    }
+    setDevPin(newMasterPin.trim());
+    setNewMasterPin('');
+    setConfirmMasterPin('');
+    showNotice('Master PIN changed successfully!');
+  };
+
+  // 3. SUBJECT OPERATIONS
   const handleSaveSubject = (e) => {
     e.preventDefault();
     if (!editingSubject) return;
@@ -150,7 +171,7 @@ export function DeveloperStudio() {
     }
   };
 
-  // 3. RESOURCE OPERATIONS
+  // 4. RESOURCE OPERATIONS
   const handleSaveResource = (e) => {
     e.preventDefault();
     if (!editingResource) return;
@@ -169,13 +190,13 @@ export function DeveloperStudio() {
     }
   };
 
-  // 4. FLASHCARD OPERATIONS
+  // 5. FLASHCARD OPERATIONS
   const handleDeleteFlashcard = (id) => {
     setFlashcards(prev => prev.filter(f => f.id !== id));
     showNotice('Flashcard deleted.');
   };
 
-  // 5. CHATROOM BROADCAST
+  // 6. CHATROOM BROADCAST
   const handleBroadcastAnnouncement = (e) => {
     e.preventDefault();
     if (!announcementText.trim()) return;
@@ -194,7 +215,7 @@ export function DeveloperStudio() {
     }
   };
 
-  // 6. RAW JSON DATABASE
+  // 7. RAW JSON DATABASE
   const handleLoadRawJson = () => {
     const data = {
       users,
@@ -298,6 +319,7 @@ export function DeveloperStudio() {
           { id: 'tasks', label: '✅ Tasks & Homework', icon: CheckSquare, count: tasks.length },
           { id: 'chat', label: '💬 Chatroom & Announcements', icon: MessageSquare },
           { id: 'rawjson', label: '⚡ Raw JSON Engine', icon: Database },
+          { id: 'security', label: '🔒 Change Master PIN', icon: KeyRound },
         ].map(tab => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
@@ -457,7 +479,7 @@ export function DeveloperStudio() {
                       <td className="p-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           
-                          {/* Role toggle button (Make Teacher / Make Student) */}
+                          {/* Role toggle button */}
                           {user.role === 'teacher' ? (
                             <button
                               onClick={() => handleDemoteStudent(user.id, user.name)}
@@ -1047,6 +1069,53 @@ export function DeveloperStudio() {
             onChange={(e) => setRawJsonText(e.target.value)}
             className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-950 text-emerald-400 font-mono text-xs outline-none focus:ring-2 focus:ring-amber-500"
           />
+        </div>
+      )}
+
+      {/* TAB 7: CHANGE MASTER PIN */}
+      {activeTab === 'security' && (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 max-w-md">
+          <div>
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">
+              Change Developer Master PIN
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Set a new private master password for developer studio access.
+            </p>
+          </div>
+
+          <form onSubmit={handleChangePin} className="space-y-3 pt-2">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1">New Master PIN</label>
+              <input
+                type="password"
+                required
+                value={newMasterPin}
+                onChange={(e) => setNewMasterPin(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono text-slate-800 dark:text-slate-100 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1">Confirm New PIN</label>
+              <input
+                type="password"
+                required
+                value={confirmMasterPin}
+                onChange={(e) => setConfirmMasterPin(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono text-slate-800 dark:text-slate-100 outline-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow-sm transition-all"
+            >
+              Update Master PIN
+            </button>
+          </form>
         </div>
       )}
 

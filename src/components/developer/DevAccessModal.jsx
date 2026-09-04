@@ -11,7 +11,7 @@ import {
 import { useStudyApp } from '../../context/StudyAppContext';
 
 export function DevAccessModal({ isOpen, onClose, onSuccess }) {
-  const { developerMode, setDeveloperMode, devPin, setDevPin } = useStudyApp();
+  const { developerMode, setDeveloperMode, devPin } = useStudyApp();
   const [enteredPin, setEnteredPin] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -26,7 +26,7 @@ export function DevAccessModal({ isOpen, onClose, onSuccess }) {
       if (onSuccess) onSuccess();
       onClose();
     } else {
-      setErrorMsg('Incorrect Developer Master PIN. (Default PIN: dev2026)');
+      setErrorMsg('Incorrect Master PIN. Access denied.');
     }
   };
 
@@ -50,7 +50,7 @@ export function DevAccessModal({ isOpen, onClose, onSuccess }) {
                 Private Developer Studio
               </h2>
               <p className="text-xs text-slate-400">
-                Authorized Admin & Full-App Customization
+                Authorized Developer & Admin Access
               </p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export function DevAccessModal({ isOpen, onClose, onSuccess }) {
                   Developer Mode is Active
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  You have full administrative privileges to modify all subjects, materials, formulas, chat settings, and raw database records.
+                  You have full administrative privileges to modify all subjects, materials, formulas, chat settings, and user directory permissions.
                 </p>
               </div>
 
@@ -86,7 +86,7 @@ export function DevAccessModal({ isOpen, onClose, onSuccess }) {
                   onClick={handleLock}
                   className="flex-1 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 font-bold text-xs hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all"
                 >
-                  Exit / Lock Developer Mode
+                  Exit / Lock Studio
                 </button>
                 <button
                   type="button"
@@ -102,10 +102,10 @@ export function DevAccessModal({ isOpen, onClose, onSuccess }) {
             </div>
           ) : (
             <form onSubmit={handleUnlock} className="space-y-4">
-              <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
-                <Lock className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-600" />
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2.5">
+                <Lock className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-500" />
                 <p className="leading-relaxed">
-                  Enter your private Master PIN to access full app configuration, subject editing, and content management.
+                  Enter your private Developer Master PIN to access administrator controls.
                 </p>
               </div>
 
@@ -126,13 +126,9 @@ export function DevAccessModal({ isOpen, onClose, onSuccess }) {
                   autoFocus
                   value={enteredPin}
                   onChange={(e) => setEnteredPin(e.target.value)}
-                  placeholder="Enter PIN (Default: dev2026)"
+                  placeholder="••••••••"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-mono text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-amber-500"
                 />
-              </div>
-
-              <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                <span>Default PIN: <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono text-indigo-600 dark:text-indigo-400 font-bold">dev2026</code></span>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
