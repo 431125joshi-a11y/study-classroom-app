@@ -3,7 +3,8 @@ import {
   INITIAL_SUBJECTS,
   INITIAL_RESOURCES,
   INITIAL_FLASHCARDS,
-  INITIAL_TASKS
+  INITIAL_TASKS,
+  INITIAL_USERS
 } from '../utils/sampleData';
 import {
   getLocalStorage,
@@ -43,11 +44,18 @@ export function StudyAppProvider({ children }) {
     getLocalStorage('edustudy_tasks', INITIAL_TASKS)
   );
 
+  // Users Directory & Permissions state
+  const [users, setUsers] = useState(() => 
+    getLocalStorage('edustudy_users', INITIAL_USERS)
+  );
+
   // Current User Profile
   const [userProfile, setUserProfile] = useState(() => 
     getLocalStorage('edustudy_user_profile', {
+      id: 'user_1',
       name: 'Tanush',
-      role: 'Student',
+      role: 'student', // 'student' | 'teacher' | 'admin'
+      status: 'active', // 'active' | 'banned'
       statusText: 'Studying for Board Exams 🚀',
       avatarGradient: 'from-indigo-500 to-purple-600',
     })
@@ -113,6 +121,10 @@ export function StudyAppProvider({ children }) {
   }, [tasks]);
 
   useEffect(() => {
+    setLocalStorage('edustudy_users', users);
+  }, [users]);
+
+  useEffect(() => {
     setLocalStorage('edustudy_user_profile', userProfile);
   }, [userProfile]);
 
@@ -157,6 +169,10 @@ export function StudyAppProvider({ children }) {
     }
 
     setResources(prev => [newResource, ...prev]);
+
+    // Increment upload count for user in directory
+    setUsers(prev => prev.map(u => u.name === userProfile.name ? { ...u, uploadsCount: (u.uploadsCount || 0) + 1 } : u));
+
     return newResource;
   };
 
@@ -187,7 +203,7 @@ export function StudyAppProvider({ children }) {
     return newSubject;
   };
 
-  // Add flashcard
+  // Flashcard operations
   const addFlashcard = (cardData) => {
     const newCard = {
       id: generateId('fc'),
@@ -197,7 +213,6 @@ export function StudyAppProvider({ children }) {
     setFlashcards(prev => [...prev, newCard]);
   };
 
-  // Toggle flashcard mastery
   const toggleFlashcardMastery = (id) => {
     setFlashcards(prev => prev.map(fc => fc.id === id ? { ...fc, mastered: !fc.mastered } : fc));
   };
@@ -220,6 +235,61 @@ export function StudyAppProvider({ children }) {
     setTasks(prev => prev.filter(t => t.id !== id));
   };
 
+  // User Management Methods (Developer Studio)
+  const promoteUserToTeacher = (userId) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: 'teacher' } : u));
+    if (userProfile.id === userId || userProfile.name === users.find(u => u.id === userId)?.name) {
+      setUserProfile(prev => ({ ...prev, role: 'teacher' }));
+    }
+  };
+
+  const demoteUserToStudent = (userId) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: 'student' } : u));
+    if (userProfile.id === userId || userProfile.name === users.find(u => u.id === userId)?.name) {
+      setUserProfile(prev => ({ ...prev, role: 'student' }));
+    }
+  };
+
+  const banUser = (userId) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: 'banned' } : u));
+    if (userProfile.id === userId || userProfile.name === users.find(u => u.id === userId)?.name) {
+      setUserProfile(prev => ({ ...prev, status: 'banned' }));
+    }
+  };
+
+  const unbanUser = (userId) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: 'active' } : u));
+    if (userProfile.id === userId || userProfile.name === users.find(u => u.id === userId)?.name) {
+      setUserProfile(prev => ({ ...prev, status: 'active' }));
+    }
+  };
+
+  const deleteUser = (userId) => {
+    setUsers(prev => prev.filter(u => u.id !== userId));
+  };
+
+  const addUser = (userData) => {
+    const newUser = {
+      id: generateId('user'),
+      role: 'student',
+      status: 'active',
+      joinedAt: new Date().toISOString(),
+      lastActive: new Date().toISOString(),
+      uploadsCount: 0,
+      messagesCount: 0,
+      ...userData,
+    };
+    setUsers(prev => [newUser, ...prev]);
+    return newUser;
+  };
+
+  const updateUser = (userId, partialData) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...partialData } : u));
+    if (userProfile.id === userId || userProfile.name === users.find(u => u.id === userId)?.name) {
+      setUserProfile(prev => ({ ...prev, ...partialData }));
+    }
+  };
+
   // Export full app data to JSON
   const exportData = () => {
     const backup = {
@@ -229,6 +299,7 @@ export function StudyAppProvider({ children }) {
       resources,
       flashcards,
       tasks,
+      users,
       userProfile,
     };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -248,6 +319,7 @@ export function StudyAppProvider({ children }) {
       if (data.resources) setResources(data.resources);
       if (data.flashcards) setFlashcards(data.flashcards);
       if (data.tasks) setTasks(data.tasks);
+      if (data.users) setUsers(data.users);
       if (data.userProfile) setUserProfile(data.userProfile);
       return { success: true };
     } catch (e) {
@@ -262,6 +334,7 @@ export function StudyAppProvider({ children }) {
     setResources(INITIAL_RESOURCES);
     setFlashcards(INITIAL_FLASHCARDS);
     setTasks(INITIAL_TASKS);
+    setUsers(INITIAL_USERS);
   };
 
   const activeSubject = subjects.find(s => s.id === activeSubjectId) || subjects[0] || null;
@@ -293,6 +366,15 @@ export function StudyAppProvider({ children }) {
         addTask,
         toggleTask,
         deleteTask,
+        users,
+        setUsers,
+        promoteUserToTeacher,
+        demoteUserToStudent,
+        banUser,
+        unbanUser,
+        deleteUser,
+        addUser,
+        updateUser,
         userProfile,
         setUserProfile,
         developerMode,

@@ -10,7 +10,9 @@ import {
   MessageSquare,
   Maximize2,
   Minimize2,
-  Bot
+  Bot,
+  Ban,
+  GraduationCap
 } from 'lucide-react';
 import { useChat } from '../../context/ChatContext';
 import { useStudyApp } from '../../context/StudyAppContext';
@@ -36,7 +38,7 @@ export function Chatbox() {
     setUnreadCount,
   } = useChat();
 
-  const { subjects, resources, userProfile, setIsUserProfileModalOpen } = useStudyApp();
+  const { subjects, resources, userProfile, setIsUserProfileModalOpen, users } = useStudyApp();
 
   const [inputMessage, setInputMessage] = useState('');
   const [selectedResourceToAttach, setSelectedResourceToAttach] = useState(null);
@@ -45,6 +47,11 @@ export function Chatbox() {
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Check if current user is banned
+  const currentUserInDb = users.find(u => u.name === userProfile.name);
+  const isBanned = userProfile.status === 'banned' || currentUserInDb?.status === 'banned';
+  const isTeacher = userProfile.role === 'teacher' || currentUserInDb?.role === 'teacher';
 
   // Channels list: General Lounge + Enrolled Subjects
   const channels = [
@@ -71,6 +78,10 @@ export function Chatbox() {
 
   const handleSend = (e) => {
     e?.preventDefault();
+    if (isBanned) {
+      alert('Your account is currently banned from sending messages.');
+      return;
+    }
     if (!inputMessage.trim() && !selectedResourceToAttach) return;
 
     sendMessage(inputMessage, selectedResourceToAttach);
@@ -153,8 +164,13 @@ export function Chatbox() {
         <div className="px-4 py-1.5 bg-indigo-50/50 dark:bg-indigo-950/30 border-b border-indigo-100 dark:border-indigo-950 flex items-center justify-between text-[11px] flex-shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-slate-500">Posting as:</span>
-            <span className="font-bold text-indigo-600 dark:text-indigo-400">
+            <span className="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
               {userProfile.name}
+              {isTeacher && (
+                <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded-md bg-purple-600 text-white">
+                  TEACHER
+                </span>
+              )}
             </span>
           </div>
           <button
@@ -186,6 +202,7 @@ export function Chatbox() {
                   <button
                     key={i}
                     onClick={() => {
+                      if (isBanned) return;
                       setInputMessage(`@StudyBot ${doubt}`);
                       inputRef.current?.focus();
                     }}
@@ -226,8 +243,16 @@ export function Chatbox() {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Banned Warning Banner */}
+        {isBanned && (
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/60 border-t border-rose-200 dark:border-rose-900 flex items-center gap-2 text-xs font-bold text-rose-700 dark:text-rose-300">
+            <Ban className="w-4 h-4 flex-shrink-0" />
+            <span>Your account has been suspended by the classroom developer/teacher. You cannot post messages.</span>
+          </div>
+        )}
+
         {/* Selected Attached Resource Preview */}
-        {selectedResourceToAttach && (
+        {!isBanned && selectedResourceToAttach && (
           <div className="px-4 py-2 bg-indigo-50 dark:bg-indigo-950/60 border-t border-indigo-100 dark:border-indigo-900/50 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 truncate">
               <Paperclip className="w-3.5 h-3.5 text-indigo-600" />
@@ -245,7 +270,7 @@ export function Chatbox() {
         )}
 
         {/* Attach Resource Dropdown Menu */}
-        {isAttachMenuOpen && (
+        {!isBanned && isAttachMenuOpen && (
           <div className="p-3 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 max-h-40 overflow-y-auto space-y-1">
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
               Select Study Material to Attach:
@@ -268,42 +293,44 @@ export function Chatbox() {
         )}
 
         {/* Bottom Message Input Composer */}
-        <form onSubmit={handleSend} className="p-3 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-end gap-2 flex-shrink-0">
-          
-          <button
-            type="button"
-            onClick={() => setIsAttachMenuOpen(!isAttachMenuOpen)}
-            className={`p-2.5 rounded-xl border transition-colors ${
-              isAttachMenuOpen || selectedResourceToAttach
-                ? 'bg-indigo-50 dark:bg-indigo-950 border-indigo-300 text-indigo-600'
-                : 'border-slate-200 dark:border-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
-            }`}
-            title="Attach a study material"
-          >
-            <Paperclip className="w-4 h-4" />
-          </button>
+        {!isBanned && (
+          <form onSubmit={handleSend} className="p-3 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-end gap-2 flex-shrink-0">
+            
+            <button
+              type="button"
+              onClick={() => setIsAttachMenuOpen(!isAttachMenuOpen)}
+              className={`p-2.5 rounded-xl border transition-colors ${
+                isAttachMenuOpen || selectedResourceToAttach
+                  ? 'bg-indigo-50 dark:bg-indigo-950 border-indigo-300 text-indigo-600'
+                  : 'border-slate-200 dark:border-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+              }`}
+              title="Attach a study material"
+            >
+              <Paperclip className="w-4 h-4" />
+            </button>
 
-          <div className="flex-1 relative">
-            <textarea
-              ref={inputRef}
-              rows={1}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={`Message #${activeChannel} or ask @StudyBot...`}
-              className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 resize-none max-h-24"
-            />
-          </div>
+            <div className="flex-1 relative">
+              <textarea
+                ref={inputRef}
+                rows={1}
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={`Message #${activeChannel} or ask @StudyBot...`}
+                className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500 resize-none max-h-24"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={!inputMessage.trim() && !selectedResourceToAttach}
-            className="p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white shadow-md shadow-indigo-500/25 transition-all flex items-center justify-center flex-shrink-0"
-          >
-            <Send className="w-4 h-4" />
-          </button>
+            <button
+              type="submit"
+              disabled={!inputMessage.trim() && !selectedResourceToAttach}
+              className="p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white shadow-md shadow-indigo-500/25 transition-all flex items-center justify-center flex-shrink-0"
+            >
+              <Send className="w-4 h-4" />
+            </button>
 
-        </form>
+          </form>
+        )}
 
       </div>
     </div>

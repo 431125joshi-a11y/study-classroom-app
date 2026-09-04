@@ -6,7 +6,9 @@ import {
   Video,
   Image as ImageIcon,
   ExternalLink,
-  Eye
+  Eye,
+  GraduationCap,
+  ShieldCheck
 } from 'lucide-react';
 import { useStudyApp } from '../../context/StudyAppContext';
 import { formatRelativeTime } from '../../utils/helpers';
@@ -14,7 +16,7 @@ import { formatRelativeTime } from '../../utils/helpers';
 const REACTION_EMOJIS = ['👍', '🔥', '💡', '❤️', '🙌', '💯', '🤔'];
 
 export function MessageItem({ message, onToggleReaction }) {
-  const { setActiveMediaResource } = useStudyApp();
+  const { setActiveMediaResource, users } = useStudyApp();
 
   const handleResourceClick = (e) => {
     e.stopPropagation();
@@ -23,25 +25,40 @@ export function MessageItem({ message, onToggleReaction }) {
     }
   };
 
+  // Check if sender is a teacher in users directory or message payload
+  const senderUser = users.find(u => u.name === message.sender);
+  const isTeacher = message.senderRole === 'teacher' || senderUser?.role === 'teacher';
+
   return (
-    <div className={`group flex items-start gap-3 p-2 rounded-2xl transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
-      message.isBot ? 'bg-indigo-50/40 dark:bg-indigo-950/20 border border-indigo-100/60 dark:border-indigo-900/40' : ''
+    <div className={`group flex items-start gap-3 p-2.5 rounded-2xl transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
+      message.isBot
+        ? 'bg-indigo-50/40 dark:bg-indigo-950/20 border border-indigo-100/60 dark:border-indigo-900/40'
+        : isTeacher
+        ? 'bg-purple-50/30 dark:bg-purple-950/20 border border-purple-100/50 dark:border-purple-900/30'
+        : ''
     }`}>
       
       {/* Avatar */}
       <div className={`w-9 h-9 rounded-2xl bg-gradient-to-tr ${message.avatarGradient || 'from-indigo-500 to-purple-600'} text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5`}>
-        {message.isBot ? <Sparkles className="w-4 h-4 text-yellow-300" /> : message.sender?.charAt(0)?.toUpperCase()}
+        {message.isBot ? <Sparkles className="w-4 h-4 text-yellow-300" /> : isTeacher ? <GraduationCap className="w-4 h-4" /> : message.sender?.charAt(0)?.toUpperCase()}
       </div>
 
       {/* Message Content */}
       <div className="flex-1 min-w-0">
         
-        {/* Header: Sender & Time */}
-        <div className="flex items-center gap-2 mb-1">
+        {/* Header: Sender & Badges */}
+        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
           <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
             {message.sender}
           </span>
           
+          {isTeacher && (
+            <span className="text-[10px] font-extrabold px-2 py-0.2 rounded-md bg-purple-600 text-white shadow-xs flex items-center gap-1">
+              <GraduationCap className="w-3 h-3" />
+              <span>TEACHER</span>
+            </span>
+          )}
+
           {message.isBot && (
             <span className="text-[10px] font-extrabold px-1.5 py-0.2 rounded-md bg-indigo-600 text-white shadow-xs">
               AI BOT

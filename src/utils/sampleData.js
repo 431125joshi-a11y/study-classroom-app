@@ -1,6 +1,87 @@
 /**
- * Sample starter data for Science, Maths, Social Studies (SST), and Study Tools
+ * Sample starter data for Science, Maths, Social Studies (SST), Study Tools, and User Directory
  */
+
+export const INITIAL_USERS = [
+  {
+    id: 'user_1',
+    name: 'Tanush',
+    email: 'tanush@school.edu',
+    role: 'student', // 'student' | 'teacher' | 'admin'
+    status: 'active', // 'active' | 'banned'
+    statusText: 'Studying for Board Exams 🚀',
+    avatarGradient: 'from-indigo-500 to-purple-600',
+    joinedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
+    lastActive: new Date().toISOString(),
+    uploadsCount: 4,
+    messagesCount: 18,
+  },
+  {
+    id: 'user_2',
+    name: 'Dr. Sarah Verma',
+    email: 'sarah.verma@school.edu',
+    role: 'teacher',
+    status: 'active',
+    statusText: 'Science Department Head 🔬',
+    avatarGradient: 'from-emerald-400 to-teal-600',
+    joinedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(),
+    lastActive: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    uploadsCount: 12,
+    messagesCount: 45,
+  },
+  {
+    id: 'user_3',
+    name: 'Prof. Ramesh Sharma',
+    email: 'ramesh.sharma@school.edu',
+    role: 'teacher',
+    status: 'active',
+    statusText: 'Senior Mathematics Faculty 📐',
+    avatarGradient: 'from-indigo-600 to-purple-600',
+    joinedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString(),
+    lastActive: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    uploadsCount: 8,
+    messagesCount: 32,
+  },
+  {
+    id: 'user_4',
+    name: 'Ms. Ananya Roy',
+    email: 'ananya.roy@school.edu',
+    role: 'teacher',
+    status: 'active',
+    statusText: 'Social Studies & History Faculty 🌍',
+    avatarGradient: 'from-amber-400 to-orange-600',
+    joinedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(),
+    lastActive: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(),
+    uploadsCount: 6,
+    messagesCount: 28,
+  },
+  {
+    id: 'user_5',
+    name: 'Aarav Patel',
+    email: 'aarav.patel@student.edu',
+    role: 'student',
+    status: 'active',
+    statusText: 'Practicing Physics Numericals ⚡',
+    avatarGradient: 'from-cyan-400 to-blue-600',
+    joinedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14).toISOString(),
+    lastActive: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    uploadsCount: 2,
+    messagesCount: 15,
+  },
+  {
+    id: 'user_6',
+    name: 'Priya Sundaram',
+    email: 'priya.s@student.edu',
+    role: 'student',
+    status: 'active',
+    statusText: 'Reviewing SST maps 🗺️',
+    avatarGradient: 'from-rose-500 to-pink-600',
+    joinedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 20).toISOString(),
+    lastActive: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+    uploadsCount: 3,
+    messagesCount: 22,
+  }
+];
 
 export const INITIAL_SUBJECTS = [
   {
@@ -313,6 +394,7 @@ export const INITIAL_CHAT_MESSAGES = [
     id: 'msg_1',
     channel: 'general',
     sender: 'Tanush',
+    senderRole: 'student',
     avatarGradient: 'from-indigo-500 to-purple-600',
     text: 'Hey everyone! Welcome to the new EduStudy Hub. Uploaded formulas and notes for tomorrow\'s test in Science and Maths 🚀',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
@@ -323,6 +405,7 @@ export const INITIAL_CHAT_MESSAGES = [
     id: 'msg_2',
     channel: 'general',
     sender: 'Dr. Sarah Verma',
+    senderRole: 'teacher',
     avatarGradient: 'from-emerald-400 to-teal-600',
     text: 'Great work! Make sure to review the chemical reaction types and balanced equations in the Science stream before class.',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
@@ -333,6 +416,7 @@ export const INITIAL_CHAT_MESSAGES = [
     id: 'msg_3',
     channel: 'science',
     sender: 'Tanush',
+    senderRole: 'student',
     avatarGradient: 'from-indigo-500 to-purple-600',
     text: '@StudyBot Can you explain the difference between exothermic and endothermic reactions with simple daily life examples?',
     timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
@@ -343,6 +427,7 @@ export const INITIAL_CHAT_MESSAGES = [
     id: 'msg_4',
     channel: 'science',
     sender: 'StudyBot AI',
+    senderRole: 'bot',
     avatarGradient: 'from-cyan-500 to-blue-600',
     text: `⚡ **Exothermic vs Endothermic Reactions**:
 
@@ -361,6 +446,7 @@ export const INITIAL_CHAT_MESSAGES = [
     id: 'msg_5',
     channel: 'maths',
     sender: 'Prof. Ramesh Sharma',
+    senderRole: 'teacher',
     avatarGradient: 'from-indigo-600 to-purple-600',
     text: 'Tip for Trigonometry: Whenever stuck on a complex identity proof, try converting everything into terms of sin θ and cos θ first!',
     timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
@@ -371,6 +457,7 @@ export const INITIAL_CHAT_MESSAGES = [
     id: 'msg_6',
     channel: 'sst',
     sender: 'Ms. Ananya Roy',
+    senderRole: 'teacher',
     avatarGradient: 'from-amber-400 to-orange-600',
     text: 'Reminder: Map work carries 5 solid marks in the board examination. Practice locating the major soil belts and mineral reserves on the India outline map.',
     timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
