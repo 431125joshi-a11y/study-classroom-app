@@ -1,3 +1,5 @@
+TO OPEN IN BROWSER: https://431125joshi-a11y.github.io/study-classroom-app/
+
 # 🎓 EduStudy Hub - Google Classroom-Inspired Collaborative Study App
 
 EduStudy Hub is a modern, fast, and student-friendly web application designed for interactive learning, resource sharing, and peer collaboration across **Science**, **Mathematics**, and **Social Studies (SST)** (plus custom subjects).
