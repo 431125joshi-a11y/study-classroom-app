@@ -11,6 +11,7 @@ import { UserProfileModal } from './components/chat/UserProfileModal';
 import { DataBackupModal } from './components/settings/DataBackupModal';
 import { DeveloperStudio } from './components/developer/DeveloperStudio';
 import { DevAccessModal } from './components/developer/DevAccessModal';
+import { GoogleAuthModal } from './components/auth/GoogleAuthModal';
 import { PomodoroTimer } from './components/tools/PomodoroTimer';
 import { FlashcardDeck } from './components/tools/FlashcardDeck';
 import { TaskTracker } from './components/tools/TaskTracker';
@@ -29,7 +30,8 @@ import {
   Layers,
   ArrowRight,
   FolderOpen,
-  Terminal
+  Terminal,
+  Mail
 } from 'lucide-react';
 
 export function App() {
@@ -44,6 +46,7 @@ export function App() {
     setIsSubjectModalOpen,
     isDevModalOpen,
     setIsDevModalOpen,
+    setIsGoogleAuthModalOpen,
     developerMode,
     userProfile,
   } = useStudyApp();
@@ -79,13 +82,16 @@ export function App() {
               <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white shadow-card">
                 <div className="absolute right-0 top-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 max-w-2xl space-y-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[11px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-200">
                       Welcome back, {userProfile.name}! 👋
                     </span>
-                    <span className="text-xs text-indigo-200/80 hidden sm:inline">
-                      {userProfile.statusText}
-                    </span>
+                    <button
+                      onClick={() => setIsGoogleAuthModalOpen(true)}
+                      className="text-xs text-indigo-200/90 hover:underline flex items-center gap-1 bg-black/20 px-2.5 py-0.5 rounded-full"
+                    >
+                      <span>Google Account: <strong>{userProfile.email || 'Connect Gmail'}</strong></span>
+                    </button>
                   </div>
 
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
@@ -111,6 +117,14 @@ export function App() {
                     >
                       <MessageSquare className="w-4 h-4 text-indigo-300" />
                       <span>Study Lounge</span>
+                    </button>
+
+                    <button
+                      onClick={() => setIsGoogleAuthModalOpen(true)}
+                      className="px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-white font-bold text-xs transition-all flex items-center gap-2 border border-slate-700"
+                    >
+                      <Mail className="w-4 h-4 text-rose-400" />
+                      <span>Google Sign-In</span>
                     </button>
 
                     {developerMode && (
@@ -267,6 +281,7 @@ export function App() {
       <MediaViewerModal />
       <UserProfileModal />
       <DataBackupModal />
+      <GoogleAuthModal />
       <DevAccessModal
         isOpen={isDevModalOpen}
         onClose={() => setIsDevModalOpen(false)}

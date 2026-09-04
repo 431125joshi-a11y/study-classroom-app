@@ -54,10 +54,12 @@ export function StudyAppProvider({ children }) {
     getLocalStorage('edustudy_user_profile', {
       id: 'user_1',
       name: 'Tanush',
+      email: 'tanush.student@gmail.com',
       role: 'student', // 'student' | 'teacher' | 'admin'
       status: 'active', // 'active' | 'banned'
       statusText: 'Studying for Board Exams 🚀',
       avatarGradient: 'from-indigo-500 to-purple-600',
+      isGoogleAuth: true,
     })
   );
 
@@ -69,6 +71,9 @@ export function StudyAppProvider({ children }) {
     getLocalStorage('edustudy_dev_pin', 'dev2026')
   );
   const [isDevModalOpen, setIsDevModalOpen] = useState(false);
+
+  // Google Sign-In & Onboarding Modal
+  const [isGoogleAuthModalOpen, setIsGoogleAuthModalOpen] = useState(false);
 
   // Global Search Query
   const [searchQuery, setSearchQuery] = useState('');
@@ -88,11 +93,14 @@ export function StudyAppProvider({ children }) {
     return getLocalStorage('edustudy_dark_mode', false);
   });
 
-  // URL Query parameter check on startup (e.g. ?dev=true or ?admin=true)
+  // URL Query parameter check on startup (e.g. ?dev=true, ?join=google, ?signin=true)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('dev') === 'true' || params.get('mode') === 'developer' || params.get('admin') === 'true') {
       setIsDevModalOpen(true);
+    }
+    if (params.get('join') || params.get('login') || params.get('signin') || params.get('auth') === 'google') {
+      setIsGoogleAuthModalOpen(true);
     }
   }, []);
 
@@ -383,6 +391,8 @@ export function StudyAppProvider({ children }) {
         setDevPin,
         isDevModalOpen,
         setIsDevModalOpen,
+        isGoogleAuthModalOpen,
+        setIsGoogleAuthModalOpen,
         searchQuery,
         setSearchQuery,
         darkMode,
