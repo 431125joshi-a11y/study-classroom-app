@@ -10,7 +10,9 @@ import {
   BookOpen,
   Sparkles,
   Database,
-  Menu
+  Menu,
+  Terminal,
+  ShieldCheck
 } from 'lucide-react';
 import { useStudyApp } from '../../context/StudyAppContext';
 import { useChat } from '../../context/ChatContext';
@@ -25,6 +27,8 @@ export function Navbar({ onToggleSidebar }) {
     setIsSubjectModalOpen,
     setIsDataBackupModalOpen,
     setIsUserProfileModalOpen,
+    setIsDevModalOpen,
+    developerMode,
     userProfile,
     currentView,
     setCurrentView,
@@ -91,9 +95,31 @@ export function Navbar({ onToggleSidebar }) {
             </div>
           </div>
 
-          {/* Right: Actions & User Info */}
+          {/* Right: Actions & Developer Studio */}
           <div className="flex items-center gap-2 sm:gap-3">
             
+            {/* Developer Studio Button */}
+            <button
+              onClick={() => {
+                if (developerMode) {
+                  setCurrentView('developer');
+                } else {
+                  setIsDevModalOpen(true);
+                }
+              }}
+              className={`p-2.5 rounded-xl border transition-all flex items-center gap-1.5 ${
+                developerMode
+                  ? 'bg-amber-500/15 border-amber-400/50 text-amber-600 dark:text-amber-400 font-bold'
+                  : 'border-slate-200 dark:border-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+              title="Private Developer Studio"
+            >
+              <Terminal className="w-4 h-4" />
+              <span className="hidden xl:inline text-xs font-mono">
+                {developerMode ? 'Dev Active' : 'Dev Studio'}
+              </span>
+            </button>
+
             {/* Quick Upload Resource Button */}
             <button
               onClick={() => setIsUploadModalOpen(true)}

@@ -9,6 +9,8 @@ import { MediaViewerModal } from './components/resources/MediaViewerModal';
 import { Chatbox } from './components/chat/Chatbox';
 import { UserProfileModal } from './components/chat/UserProfileModal';
 import { DataBackupModal } from './components/settings/DataBackupModal';
+import { DeveloperStudio } from './components/developer/DeveloperStudio';
+import { DevAccessModal } from './components/developer/DevAccessModal';
 import { PomodoroTimer } from './components/tools/PomodoroTimer';
 import { FlashcardDeck } from './components/tools/FlashcardDeck';
 import { TaskTracker } from './components/tools/TaskTracker';
@@ -26,7 +28,8 @@ import {
   Upload,
   Layers,
   ArrowRight,
-  FolderOpen
+  FolderOpen,
+  Terminal
 } from 'lucide-react';
 
 export function App() {
@@ -39,6 +42,9 @@ export function App() {
     searchQuery,
     setIsUploadModalOpen,
     setIsSubjectModalOpen,
+    isDevModalOpen,
+    setIsDevModalOpen,
+    developerMode,
     userProfile,
   } = useStudyApp();
 
@@ -106,6 +112,16 @@ export function App() {
                       <MessageSquare className="w-4 h-4 text-indigo-300" />
                       <span>Study Lounge</span>
                     </button>
+
+                    {developerMode && (
+                      <button
+                        onClick={() => setCurrentView('developer')}
+                        className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-mono font-bold text-xs transition-all flex items-center gap-2 shadow-sm"
+                      >
+                        <Terminal className="w-4 h-4" />
+                        <span>Open Dev Studio</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -239,6 +255,9 @@ export function App() {
             </div>
           )}
 
+          {/* VIEW 6: Private Developer Studio */}
+          {currentView === 'developer' && <DeveloperStudio />}
+
         </main>
       </div>
 
@@ -248,6 +267,11 @@ export function App() {
       <MediaViewerModal />
       <UserProfileModal />
       <DataBackupModal />
+      <DevAccessModal
+        isOpen={isDevModalOpen}
+        onClose={() => setIsDevModalOpen(false)}
+        onSuccess={() => setCurrentView('developer')}
+      />
       <Chatbox />
 
     </div>

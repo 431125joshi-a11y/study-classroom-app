@@ -12,7 +12,10 @@ import {
   Sparkles,
   BookMarked,
   X,
-  Laptop
+  Laptop,
+  Terminal,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import { useStudyApp } from '../../context/StudyAppContext';
 import { useChat } from '../../context/ChatContext';
@@ -33,6 +36,8 @@ export function Sidebar({ isOpen, onClose }) {
     currentView,
     setCurrentView,
     setIsSubjectModalOpen,
+    developerMode,
+    setIsDevModalOpen,
     resources,
     tasks
   } = useStudyApp();
@@ -223,6 +228,31 @@ export function Sidebar({ isOpen, onClose }) {
                 </span>
               </button>
             </nav>
+          </div>
+
+          {/* Developer Control Room Section */}
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <button
+              onClick={() => {
+                if (developerMode) {
+                  handleNavClick('developer');
+                } else {
+                  setIsDevModalOpen(true);
+                  if (onClose) onClose();
+                }
+              }}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-mono transition-all ${
+                currentView === 'developer'
+                  ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30'
+                  : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Terminal className="w-3.5 h-3.5 text-amber-500" />
+                <span>Dev Studio</span>
+              </div>
+              {developerMode ? <Unlock className="w-3.5 h-3.5 text-emerald-500" /> : <Lock className="w-3.5 h-3.5 text-slate-400" />}
+            </button>
           </div>
 
         </div>

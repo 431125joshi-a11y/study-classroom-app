@@ -22,7 +22,7 @@ export function StudyAppProvider({ children }) {
     getLocalStorage('edustudy_subjects', INITIAL_SUBJECTS)
   );
 
-  // Active navigation view: 'dashboard' | 'subject' | 'tools' | 'chat'
+  // Active navigation view: 'dashboard' | 'subject' | 'tools' | 'chat' | 'flashcards' | 'tasks' | 'developer'
   const [currentView, setCurrentView] = useState('dashboard');
   
   // Active subject ID
@@ -53,6 +53,15 @@ export function StudyAppProvider({ children }) {
     })
   );
 
+  // Developer / Admin Studio Mode
+  const [developerMode, setDeveloperMode] = useState(() => 
+    getLocalStorage('edustudy_dev_mode', false)
+  );
+  const [devPin, setDevPin] = useState(() => 
+    getLocalStorage('edustudy_dev_pin', 'dev2026')
+  );
+  const [isDevModalOpen, setIsDevModalOpen] = useState(false);
+
   // Global Search Query
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -71,13 +80,20 @@ export function StudyAppProvider({ children }) {
     return getLocalStorage('edustudy_dark_mode', false);
   });
 
+  // URL Query parameter check on startup (e.g. ?dev=true or ?admin=true)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dev') === 'true' || params.get('mode') === 'developer' || params.get('admin') === 'true') {
+      setIsDevModalOpen(true);
+    }
+  }, []);
+
   // Sync to local storage
   useEffect(() => {
     setLocalStorage('edustudy_subjects', subjects);
   }, [subjects]);
 
   useEffect(() => {
-    // Only store metadata in localStorage, binaries are stored in IndexedDB
     const metaResources = resources.map(res => {
       if (res.blobData && res.blobData.length > 50000) {
         const { blobData, ...rest } = res;
@@ -99,6 +115,14 @@ export function StudyAppProvider({ children }) {
   useEffect(() => {
     setLocalStorage('edustudy_user_profile', userProfile);
   }, [userProfile]);
+
+  useEffect(() => {
+    setLocalStorage('edustudy_dev_mode', developerMode);
+  }, [developerMode]);
+
+  useEffect(() => {
+    setLocalStorage('edustudy_dev_pin', devPin);
+  }, [devPin]);
 
   useEffect(() => {
     setLocalStorage('edustudy_dark_mode', darkMode);
@@ -128,7 +152,6 @@ export function StudyAppProvider({ children }) {
     };
 
     if (fileBlob) {
-      // Store binary blob in IndexedDB
       await saveBlob(newId, fileBlob);
       newResource.hasBinaryInIndexedDB = true;
     }
@@ -247,6 +270,7 @@ export function StudyAppProvider({ children }) {
     <StudyAppContext.Provider
       value={{
         subjects,
+        setSubjects,
         activeSubject,
         activeSubjectId,
         selectSubject,
@@ -256,18 +280,27 @@ export function StudyAppProvider({ children }) {
         subjectActiveTab,
         setSubjectActiveTab,
         resources,
+        setResources,
         addResource,
         deleteResource,
         togglePinResource,
         flashcards,
+        setFlashcards,
         addFlashcard,
         toggleFlashcardMastery,
         tasks,
+        setTasks,
         addTask,
         toggleTask,
         deleteTask,
         userProfile,
         setUserProfile,
+        developerMode,
+        setDeveloperMode,
+        devPin,
+        setDevPin,
+        isDevModalOpen,
+        setIsDevModalOpen,
         searchQuery,
         setSearchQuery,
         darkMode,
